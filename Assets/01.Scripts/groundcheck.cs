@@ -1,16 +1,20 @@
-using UnityEngine;
+﻿using UnityEngine;
+using System;
 
-public class groundcheck : MonoBehaviour
+public class Groundcheck : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // 지면 트리거 이벤트의 상태가 변할때 마다 현재 상태를 알려줌
+    public event Action<bool> GroundTriggeredEvent;
+
+    // 다른 콜라이어가 내 트리거 영역 안에 있으면 작동
+    private void OnTriggerStay(Collider other)
     {
-        
+        GroundTriggeredEvent.Invoke(true); // 트리거 true
     }
 
-    // Update is called once per frame
-    void Update()
+    // 다른 콜라이더가 내 트리거 영역에서 나가면 작동
+    private void OnTriggerExit(Collider other)
     {
-        
+        GroundTriggeredEvent.Invoke(false); // 트리거 false
     }
 }
