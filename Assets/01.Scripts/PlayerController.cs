@@ -1,76 +1,47 @@
 ﻿using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
+
 {
     [Header("이동 설정")]
-    [SerializeField] private float _moveSpeed = 2f; // 이동 속도
+    public float _moveSpeed = 5.0f; // 이동속도
 
-    [Header("점프 및 물리")]
-    [SerializeField] private float _jumpForce = 5f; // 점프 힘
-    [SerializeField] private bool _isGrounded; // 지면 체크
+    [Header("공격 설정")]
+    [SerializeField] private float _attackCooldown = 0.5f; // 공격 쿨타임
+    private float _cooldownTimer = 0f; // 쿨타임 계산
+
+    [Header("점프 설정")]
+    public float JumpForec = 7.0f;
 
     [Header("컴포넌트")]
-    [SerializeField] private Rigidbody Rigidbody_Player; // 플레이어 리지드바디 연결
-    [SerializeField] private Groundcheck GroundDetecter; // 지면체크 연결
-    [SerializeField] private Animatorcontroller Animatorcontroller; // 애니메이션 컨트롤러
+    [SerializeField] private Rigidbody _rigidbody; // 리지드바디 연결
+    [SerializeField] private Groundcheck _groundCheck;
+    [SerializeField] private Animatorcontroller _animatorController;
 
-    private bool _isDead = false; // 캐릭터 사망 체크
-    private bool _isRun = false; // 걷기 체크
-
-    private void OnEnable()
-    {
-        // 만약 지면 체크 오브젝트가 있으면
-        if (GroundDetecter != null)
-        {
-            // 지면 체크 트리거 이벤트 구독
-            GroundDetecter.GroundTriggeredEvent += OnGroundTriggered;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (GroundDetecter != null)
-        {
-            // 지면 체크 트리거 이벤트 구독 혜지
-            GroundDetecter.GroundTriggeredEvent -= OnGroundTriggered;
-        }
-    }
+    private Vector3 _moveDirection;
+    private bool _isRun = false;
+    private bool _jumpRequested;
 
     private void Start()
     {
-        // 게임 시작 시 마우스 커서를 화면 중앙에 고정하고 숨김
-        Cursor.lockState = CursorLockMode.Locked;
+        _rigidbody = GetComponent<Rigidbody>();
 
-        if (Animatorcontroller == null)
+        if (_rigidbody == null)
         {
-            Debug.LogError("플레이어 애니메이터 연결 확인 요망!");
-        }
-
-        if (Rigidbody_Player == null)
-        {
-            Rigidbody_Player = GetComponent<Rigidbody>();
-
-            if (Rigidbody_Player == null)
-            {
-                Debug.LogError("플레이어 리지드바디 연결 확인 요망!");
-            }
-        }
-
-        if (GroundDetecter == null)
-        {
-            Debug.LogWarning("플레이어 지면체크 오브젝트 연결 확인 요망");
+            Debug.LogError("리지드바디가 없습니다!");
         }
     }
 
     private void Update()
     {
-        if (_isDead) // 만약 죽었다면
+        if (_cooldownTimer > 0f) // 만약 쿨타임이 0 보다 크면
         {
-            return; // 반환
+            // 쿨타임 시작
+            _cooldownTimer = _cooldownTimer - Time.deltaTime;
         }
 
-        // 만약 쉬프트 누르면
         if (Input.GetKey(KeyCode.LeftShift))
         {
             _isRun = true; // 트루 처리
@@ -80,84 +51,106 @@ public class PlayerController : MonoBehaviour
             _isRun = false; // 거짓 처리
         }
 
-        MoveOnUpdate(); // 움직임 함수 호출
-
-        // 만약 스페이스바 누르면
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (_isGrounded) // 만약 지면에 붙어 있으면
-            {
-                StartJump(); // 점프 함수 호출
-            }
-        }
-
-        if (Input.GetMouseButtonDown(0)) // 마우스 클릭하면
-        {
-            StartAttack(); // 공격 함수 호출
-        }
-    }
-
-    void MoveOnUpdate() // 움직임 함수
-    {
-        // A(-1),D(1) 입력을 받아 좌우 움직임
         float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        float z = Input.GetAxisRaw("Vertical");
 
-        // 캐릭터가 바라보는 방향 저장
-        Vector3 moveDirection = (transform.right * x) + (transform.forward * z);
+        Vector3 camForward = Camera.main.transform.forward;
+        Vector3 camRight = Camera.main.transform.right;
 
-        // 대각선 이동 속도 정규화
-        if (moveDirection.magnitude > 1f)
+        camForward.y = 0;
+        camRight.y = 0;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        // 카메라의 앞/뒤(z)와 좌/우(x)를 합쳐서 최종 이동 방향 결정
+        _moveDirection = (camForward * z + camRight * x);
+
+        if (_moveDirection.magnitude > 0.1f)
         {
-            moveDirection.Normalize();
+            _moveDirection.Normalize();
         }
 
-        if (moveDirection.magnitude == 0) // 입력이 전혀 없으면 대기
-        {
-            Animatorcontroller.SetState(AllState.Idle); // 대기 애니메이션 실행
+        bool isGrounded = _groundCheck != null && _groundCheck.IsGrounded;
 
-            // 플레이어 움직이지 못하게 속도 0
-            Rigidbody_Player.linearVelocity = new Vector3(0, Rigidbody_Player.linearVelocity.y, 0);
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            _jumpRequested = true;
+            _animatorController.SetJump(false);
         }
-        else // 입력이 있으면
+
+        if (Input.GetMouseButtonDown(0))
         {
-            if (_isRun == true) // 달리기 상태면
+            if (_cooldownTimer <= 0f) // 쿨타임이 0이거나 0보다 작으면
             {
-                // 달리기 애니메이션 실행
-                Animatorcontroller.SetState(AllState.Run);
-                // 달리기 속도 저장
-                float runSpeed = _moveSpeed * 2f;
-
-                // 달리기 속도 계산
-                Rigidbody_Player.linearVelocity = new Vector3(moveDirection.x * runSpeed, Rigidbody_Player.linearVelocity.y, moveDirection.z * runSpeed);
-            }
-            else // 걷기 상태면
-            {
-                // 걷기 애니메이션 실행
-                Animatorcontroller.SetState(AllState.Walk);
-
-                // 걷기 속도 계산
-                Rigidbody_Player.linearVelocity = new Vector3(moveDirection.x * _moveSpeed, Rigidbody_Player.linearVelocity.y, moveDirection.z * _moveSpeed);
+                StartAttack(); // 공격 함수 호출
             }
         }
     }
 
-    void StartJump() // 점프 함수 
+    private void FixedUpdate()
     {
-        // 점프 힘 계산
-        Rigidbody_Player.linearVelocity = new Vector3(Rigidbody_Player.linearVelocity.x, _jumpForce, Rigidbody_Player.linearVelocity.z);
-        _isGrounded = false; // 지면체크 false
+        Move();
+        Rotate();
+
+        if (_jumpRequested)
+        {
+            Jump();
+            _jumpRequested = false;
+            _animatorController.SetJump(true);
+            _animatorController.SetState(AllState.Idle);
+        }
     }
+
+    private void Move()
+    {
+        float speed; // 속도 변수 저장
+
+        if (_moveDirection.magnitude < 0.1f)
+        {
+            speed = 0f;
+            _animatorController.SetState(AllState.Idle); // 대기 애니메이션 실행
+        }
+        // 2. 이동 입력이 있을 때 (걷기 or 달리기)
+        else
+        {
+            if (_isRun == true) // 만약 달리고 있다면
+            {
+                speed = _moveSpeed * 2f; // 달리기 속도 적용
+                _animatorController.SetState(AllState.Run); // 달리기 애니메이션 실행
+            }
+            else // 안 달리고 있다면 (걷기)
+            {
+                speed = _moveSpeed; // 걷기 속도 적용
+                _animatorController.SetState(AllState.Walk); // 걷기 애니메이션 실행
+            }
+        }
+
+        _rigidbody.MovePosition(_rigidbody.position + _moveDirection * speed * Time.deltaTime);
+    }
+
+    private void Rotate()
+    {
+        if (_moveDirection.magnitude > 0.1f)
+        {
+            // 봐라 보려고 하는 회전 방향
+            Quaternion targetRotation = Quaternion.LookRotation(_moveDirection);
+
+            // 현재 방향에서 목표 방향으로 '초당 10f의 속도'로 부드럽게 회전
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+        }
+    }
+
+    private void Jump()
+    {
+        _rigidbody.AddForce(Vector3.up * JumpForec, ForceMode.Impulse);
+    }
+
 
     void StartAttack() // 공격함수
     {
         // 공격 애니메이션 호출
-        Animatorcontroller.SetState(AllState.Attack);
-    }
-
-    private void OnGroundTriggered(bool isGrounded) // 지면 체크 센서 트리거 함수
-    {
-        // 지면 체크 결과 저장
-        _isGrounded = isGrounded;
+        _animatorController.SetState(AllState.Attack);
+        _cooldownTimer = _attackCooldown; // 쿨타임 초기화
     }
 }
+

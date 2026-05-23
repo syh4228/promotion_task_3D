@@ -3,18 +3,22 @@ using System;
 
 public class Groundcheck : MonoBehaviour
 {
-    // 지면 트리거 이벤트의 상태가 변할때 마다 현재 상태를 알려줌
-    public event Action<bool> GroundTriggeredEvent;
+    public LayerMask GroundLayer;
+    public float GroundCheckDistance = 2f;
 
-    // 다른 콜라이어가 내 트리거 영역 안에 있으면 작동
-    private void OnTriggerStay(Collider other)
+    public bool IsGrounded { get; private set; }
+
+    private void Update()
     {
-        GroundTriggeredEvent.Invoke(true); // 트리거 true
+        CheckGrounded();
     }
 
-    // 다른 콜라이더가 내 트리거 영역에서 나가면 작동
-    private void OnTriggerExit(Collider other)
+    private void CheckGrounded()
     {
-        GroundTriggeredEvent.Invoke(false); // 트리거 false
+        RaycastHit hit;
+
+        Vector3 rayStart = transform.position + Vector3.up * 0.1f;
+
+        IsGrounded = Physics.Raycast(rayStart, Vector3.down, out hit, GroundCheckDistance + 0.1f, GroundLayer);
     }
 }
