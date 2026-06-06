@@ -6,5 +6,7 @@ public enum AllState
     Walk,
     Run,
     Attack,
-    Jump
+    Jump,
+    Dead,
+    Hit
 }

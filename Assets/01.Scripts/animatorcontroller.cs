@@ -1,15 +1,5 @@
 ﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
 
-public enum AllState
-{
-    Idle,
-    Walk,
-    Run,
-    Attack,
-    Jump
-}
 
 public class Animatorcontroller : MonoBehaviour
 {
@@ -17,22 +7,15 @@ public class Animatorcontroller : MonoBehaviour
 
     private AllState _currentState;
 
-    private Dictionary<AllState, Action> _animationActions;
-
-    private static readonly int AnimationIsWalk = Animator.StringToHash("IsWalk");
+    // 붙 타임 해시 파라미터
     private static readonly int AnimationIsRun = Animator.StringToHash("IsRun");
+    private static readonly int AnimationIsDead = Animator.StringToHash("IsDead");
+
+    // 트리거 타입 해시 파라미터
+    private static readonly int AnimationIsWalk = Animator.StringToHash("IsWalk");
     private static readonly int AnimationIsAttack = Animator.StringToHash("IsAttack");
     private static readonly int AnimationIsJump = Animator.StringToHash("IsJump");
-
-    private void Awake()
-    {
-        _animationActions = new Dictionary<AllState, Action>();
-
-        _animationActions.Add(AllState.Idle, AllIdleAnimation);
-        _animationActions.Add(AllState.Walk, AllWalkAnimation);
-        _animationActions.Add(AllState.Run, AllRunAnimation);
-        _animationActions.Add(AllState.Attack, AllAttackAnimation);
-    }
+    private static readonly int AnimationTriggerHit = Animator.StringToHash("IsHit");
 
     private void Start()
     {
@@ -49,8 +32,6 @@ public class Animatorcontroller : MonoBehaviour
                 Debug.LogError("애니메이터가 연결되지 않았습니다! 확인해주세요.");
             }
         }
-
-        ResetAllBoolParameters();
     }
 
     public void SetState(AllState newState)
@@ -58,72 +39,41 @@ public class Animatorcontroller : MonoBehaviour
         // 새 행동이 현재행동 과 같으면
         if (newState == _currentState)
         {
-            // 새 행동이 공격이 아니면
-            if (newState != AllState.Attack)
+            // 새 행동이 공격이나, 피격이 아니면
+            if (newState != AllState.Attack && newState != AllState.Hit)
             {
                 return;
             }
         }
 
-        // 딕셔너리에서 새 행동이 있는지 찾고, 액션에 담기
-        if (_animationActions.TryGetValue(newState, out Action action))
+        // 기존 상태 초기화 함수 호출
+        ResetAllBoolParameters();
+
+        switch (newState)
         {
-            action.Invoke(); // 새 행동 실행
-            _currentState = newState; // 현재 행동으로 저장
+            case AllState.Idle: // 대기는 기본 상태
+                break;
+            case AllState.Run:
+                SafeSetBool(AnimationIsRun, true);
+                break;
+            case AllState.Dead:
+                SafeSetBool(AnimationIsDead, true);
+                break;
+            case AllState.Attack:
+                SafeSetTrigger(AnimationIsAttack);
+                break;
+            case AllState.Hit:
+                SafeSetTrigger(AnimationTriggerHit);
+                break;
+            default:
+                break;
         }
-        else
-        {
-            Debug.LogWarning($"{newState} 연결된 애니메이션이 없습니다.");
-        }
     }
 
-    public void SetJump(bool isJump) // 점프 애니메이션 함수
-    {
-        if (Animator_Control != null)
-        {
-            SafeSetBool(AnimationIsJump, isJump);
-        }
-    }
-
-    private void AllIdleAnimation() // 대기애니메이션 함수
-    {
-        // 상태 초기화 함수 호출
-        ResetAllBoolParameters();
-    }
-
-    private void AllWalkAnimation() // 걷는 애니매이션 함수
-    {
-        ResetAllBoolParameters();
-        // 걷기 애니메이션 실행
-        SafeSetBool(AnimationIsWalk, true);
-    }
-
-    private void AllRunAnimation() // 달리기 애니메이션 함수
-    {
-        ResetAllBoolParameters();
-        // 달리기 애니메이션 실행
-        SafeSetBool(AnimationIsRun, true);
-    }
-
-    private void AllAttackAnimation() // 공격 애니메이션 함수
-    {
-
-        ResetAllBoolParameters();
-        // 공격 애니메이션 실행
-        SafeSetBool(AnimationIsAttack, true);
-    }
-
-    // 상태 초기화 함수
     private void ResetAllBoolParameters()
     {
-
-        // 걷기 애니메이션 끄기
-        SafeSetBool(AnimationIsWalk, false);
         // 달리기 애니메이션 끄기
         SafeSetBool(AnimationIsRun, false);
-        // 공격 애니메이션 끄기
-        SafeSetBool(AnimationIsAttack, false);
-        SafeSetBool(AnimationIsJump, true);
     }
 
     // 애니메이션 파라미터 조정 함수
@@ -143,6 +93,21 @@ public class Animatorcontroller : MonoBehaviour
                 // 스위치가 실제로 있을때만 값 변경
                 Animator_Control.SetBool(parameterHash, value);
                 return; // 반환
+            }
+        }
+    }
+
+    // 애니메이션 트리거 조작 함수
+    private void SafeSetTrigger(int parameterHash)
+    {
+        if (Animator_Control == null) return;
+
+        foreach (AnimatorControllerParameter param in Animator_Control.parameters)
+        {
+            if (param.nameHash == parameterHash)
+            {
+                Animator_Control.SetTrigger(parameterHash);
+                return;
             }
         }
     }
