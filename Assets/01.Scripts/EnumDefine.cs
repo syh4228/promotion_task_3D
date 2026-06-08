@@ -8,5 +8,8 @@ public enum AllState
     Attack,
     Jump,
     Dead,
-    Hit
+    Hit,
+    Drop,
+    Talk,
+    Roll
 }

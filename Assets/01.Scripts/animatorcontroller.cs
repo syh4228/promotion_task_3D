@@ -10,12 +10,16 @@ public class Animatorcontroller : MonoBehaviour
     // 붙 타임 해시 파라미터
     private static readonly int AnimationIsRun = Animator.StringToHash("IsRun");
     private static readonly int AnimationIsDead = Animator.StringToHash("IsDead");
+    private static readonly int AnimationIsJump = Animator.StringToHash("IsJump");
 
     // 트리거 타입 해시 파라미터
-    private static readonly int AnimationIsWalk = Animator.StringToHash("IsWalk");
+    private static readonly int AnimationIsRoll = Animator.StringToHash("IsRoll");
     private static readonly int AnimationIsAttack = Animator.StringToHash("IsAttack");
-    private static readonly int AnimationIsJump = Animator.StringToHash("IsJump");
     private static readonly int AnimationTriggerHit = Animator.StringToHash("IsHit");
+    private static readonly int AnimationTriggerTalk = Animator.StringToHash("IsTalk");
+    private static readonly int AnimationTriggerDrop = Animator.StringToHash("Drop");
+
+
 
     private void Start()
     {
@@ -65,6 +69,15 @@ public class Animatorcontroller : MonoBehaviour
             case AllState.Hit:
                 SafeSetTrigger(AnimationTriggerHit);
                 break;
+            case AllState.Roll:
+                SafeSetTrigger(AnimationIsRoll);
+                break;
+            case AllState.Talk:
+                SafeSetTrigger(AnimationTriggerTalk);
+                break;
+            case AllState.Drop:
+                SafeSetTrigger(AnimationTriggerDrop);
+                break;
             default:
                 break;
         }
@@ -74,6 +87,15 @@ public class Animatorcontroller : MonoBehaviour
     {
         // 달리기 애니메이션 끄기
         SafeSetBool(AnimationIsRun, false);
+    }
+
+    public void SetJump(bool isJump)
+    {
+        if (Animator_Control != null)
+        {
+            // isGrounded를 스스로 끄거나 킴
+            SafeSetBool(AnimationIsJump, isJump);
+        }
     }
 
     // 애니메이션 파라미터 조정 함수
