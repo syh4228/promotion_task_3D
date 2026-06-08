@@ -21,7 +21,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animatorcontroller _animatorController;
 
     private Vector3 _moveDirection;
-    private bool _isRun = false;
     private bool _jumpRequested;
 
     private void Start()
@@ -40,15 +39,6 @@ public class PlayerController : MonoBehaviour
         {
             // 쿨타임 시작
             _cooldownTimer = _cooldownTimer - Time.deltaTime;
-        }
-
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            _isRun = true; // 트루 처리
-        }
-        else // 안누르면
-        {
-            _isRun = false; // 거짓 처리
         }
 
         float x = Input.GetAxisRaw("Horizontal");
@@ -85,6 +75,24 @@ public class PlayerController : MonoBehaviour
                 StartAttack(); // 공격 함수 호출
             }
         }
+
+        // 구르기 (Shift)
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            _animatorController.SetState(AllState.Roll);
+        }
+
+        // 상호작용 / 말걸기 (E)
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            _animatorController.SetState(AllState.Talk);
+        }
+
+        // 드롭 (V)
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            _animatorController.SetState(AllState.Drop);
+        }
     }
 
     private void FixedUpdate()
@@ -96,7 +104,6 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
             _jumpRequested = false;
-            _animatorController.SetJump(true);
             _animatorController.SetState(AllState.Idle);
         }
     }
@@ -110,22 +117,13 @@ public class PlayerController : MonoBehaviour
             speed = 0f;
             _animatorController.SetState(AllState.Idle); // 대기 애니메이션 실행
         }
-        // 2. 이동 입력이 있을 때 (걷기 or 달리기)
         else
         {
-            if (_isRun == true) // 만약 달리고 있다면
-            {
-                speed = _moveSpeed * 2f; // 달리기 속도 적용
-                _animatorController.SetState(AllState.Run); // 달리기 애니메이션 실행
-            }
-            else // 안 달리고 있다면 (걷기)
-            {
-                speed = _moveSpeed; // 걷기 속도 적용
-                _animatorController.SetState(AllState.Walk); // 걷기 애니메이션 실행
-            }
+            speed = _moveSpeed; // 속도 적용
+            _animatorController.SetState(AllState.Run); // Run 애니메이션
         }
 
-        _rigidbody.MovePosition(_rigidbody.position + _moveDirection * speed * Time.deltaTime);
+        _rigidbody.MovePosition(_rigidbody.position + _moveDirection * speed * Time.fixedDeltaTime);
     }
 
     private void Rotate()
