@@ -17,7 +17,7 @@ public class Animatorcontroller : MonoBehaviour
     private static readonly int AnimationIsAttack = Animator.StringToHash("IsAttack");
     private static readonly int AnimationTriggerHit = Animator.StringToHash("IsHit");
     private static readonly int AnimationTriggerTalk = Animator.StringToHash("IsTalk");
-    private static readonly int AnimationTriggerDrop = Animator.StringToHash("Drop");
+    private static readonly int AnimationTriggerDrop = Animator.StringToHash("IsDrop");
 
 
 
