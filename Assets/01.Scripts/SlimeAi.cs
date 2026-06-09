@@ -9,12 +9,19 @@ public class SlimeAi : MonoBehaviour
     [SerializeField] private float _attackRange = 2.0f;     // 공격 범위 (빨간색 원)
     [SerializeField] private float _attackCooldown = 1.5f;  // 공격 쿨타임
 
+    [Header("피격 설정")]
+    [SerializeField] private float _hitStunDuration = 0.5f; // 경직 시간
+
     [Header("컴포넌트 연결")]
     [SerializeField] private Animatorcontroller _animatorController; // 애니메이션 컨트롤러 연결
+
+    [Header("스탯 연결")]
+    [SerializeField] private SlimeState _slimeState;
 
     private Transform _player; // 플레이어 위치 저장
     private NavMeshAgent _agent; // 네비게이션 정보 저장
     private float _cooldownTimer = 0f; // 쿨타임 타이머
+    private float _stunTimer = 0f; // 경직 타이머
 
     private void Start()
     {
@@ -45,6 +52,17 @@ public class SlimeAi : MonoBehaviour
     {
         // 플레이어가 없고, 네이게이션 정보가 없으면 반환
         if (_player == null || _agent == null) return;
+
+        if (_stunTimer > 0f) // 경직 시간이 0 보다 크면
+        {
+            // 타이머 감소
+            _stunTimer = _stunTimer - Time.deltaTime;
+
+            _agent.isStopped = true; // 이동 멈춤
+            _agent.velocity = Vector3.zero; // 미끄러짐 방지
+
+            return; // 반환
+        }
 
         if (_cooldownTimer > 0f) // 쿨타임이 0보다 크면
         {
@@ -112,9 +130,36 @@ public class SlimeAi : MonoBehaviour
         {
             _animatorController.SetState(AllState.Attack);  // 애니메이션 공격 재생
         }
-        
+
+        if (_player != null) // 플레이어가 있으면
+        {
+            // 플레이어스탯 컴포넌트를 가지고 있으면 저장
+            PlayerState playerStat = _player.GetComponent<PlayerState>();
+
+            // 플레이어 스탯이 있고, 배틀매니저 인스턴스가 있고, 스라임 스텟이 있으면
+            if (playerStat != null && BattleManager.Instance != null && _slimeState != null)
+            {
+                // 배틀 매니저에게 적 공격 함수 호출
+                BattleManager.Instance.ExecuteEnemyAttack(_slimeState, playerStat);
+            }
+        }
+
         // 쿨타임 시간 초기화
         _cooldownTimer = _attackCooldown; 
+    }
+
+    // 피격시 경직 함수
+    public void TriggerHitReaction() 
+    {
+        _stunTimer = _hitStunDuration; // 경직 타이머 꽉 채우기
+
+        _agent.isStopped = true; // 즉시 멈춤
+        _agent.velocity = Vector3.zero;
+
+        if (_animatorController != null) // 애니메이션 컨트롤러가 있으면
+        {
+            _animatorController.SetState(AllState.Hit); // 피격 애니메이션 재생
+        }
     }
 
     // 범위 기즈모로 그리는 함수

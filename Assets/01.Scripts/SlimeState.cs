@@ -43,6 +43,17 @@ public class SlimeState : MonoBehaviour
             _currentHp = 0; // 체력 0으로 수정
             Die(); // 사망함수 호출
         }
+        else // 사망이 아니면
+        {
+            // 슬라임 AI 컴포넌트 가져와 저장
+            SlimeAi myAi = GetComponent<SlimeAi>();
+
+            if (myAi != null) // 슬라임 AI가 있다면
+            {
+                // 피격시 경직 함수 호출
+                myAi.TriggerHitReaction();
+            }
+        }
     }
 
     // 사망함수

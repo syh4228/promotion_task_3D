@@ -50,6 +50,8 @@ public class Animatorcontroller : MonoBehaviour
             }
         }
 
+        _currentState = newState;
+
         // 기존 상태 초기화 함수 호출
         ResetAllBoolParameters();
 

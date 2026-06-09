@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("공격 설정")]
     [SerializeField] private float _attackCooldown = 0.5f; // 공격 쿨타임
+    [SerializeField] private float _attackRange = 2.0f; // 공격 범위
     private float _cooldownTimer = 0f; // 쿨타임 계산
 
     [Header("점프 설정")]
@@ -18,11 +19,16 @@ public class PlayerController : MonoBehaviour
     [Header("줍기 설정")]
     [SerializeField] private float _pickupRange = 2.0f; // 아이템 인식 범위
 
+    [Header("피격 설정")]
+    [SerializeField] private float _hitStunDuration = 0.4f; // 플레이어 경직 시간
+    private float _stunTimer = 0f; // 경직 타이머
+
     [Header("컴포넌트")]
     [SerializeField] private Rigidbody _rigidbody; // 리지드바디 연결
     [SerializeField] private Groundcheck _groundCheck;
     [SerializeField] private Animatorcontroller _animatorController;
     [SerializeField] private InventoryManager _inventoryManager; // 인벤토리 연결
+    [SerializeField] private PlayerState _playerStat; // 스텟 연결
 
     private Vector3 _moveDirection;
     private bool _jumpRequested;
@@ -35,10 +41,22 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("리지드바디가 없습니다!");
         }
+
+        if (_playerStat == null)
+        {
+            _playerStat = GetComponent<PlayerState>();
+        }
     }
 
     private void Update()
     {
+        if (_stunTimer > 0f) // 경직 타이머가 0보다 크면
+        {
+            _stunTimer = _stunTimer - Time.deltaTime; // 타이머 시간 증가
+            _moveDirection = Vector3.zero; // 경직 중 이동 관성 제거
+            return; // 반환
+        }
+
         if (_cooldownTimer > 0f) // 만약 쿨타임이 0 보다 크면
         {
             // 쿨타임 시작
@@ -66,10 +84,15 @@ public class PlayerController : MonoBehaviour
 
         bool isGrounded = _groundCheck != null && _groundCheck.IsGrounded;
 
+        if (isGrounded == true)
+        {
+            _animatorController.SetJump(false);
+        }
+
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             _jumpRequested = true;
-            _animatorController.SetJump(false);
+            _animatorController.SetJump(true);
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -101,6 +124,13 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (_stunTimer > 0f) // 스턴 타이머 0보다 크면
+        {
+            // 미끄러짐 방지를 위해 Y축(중력)을 제외한 X, Z 속도를 0으로 만듦
+            _rigidbody.linearVelocity = new Vector3(0f, _rigidbody.linearVelocity.y, 0f);
+            return;
+        }
+
         Move();
         Rotate();
 
@@ -108,7 +138,6 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
             _jumpRequested = false;
-            _animatorController.SetState(AllState.Idle);
         }
     }
 
@@ -153,6 +182,27 @@ public class PlayerController : MonoBehaviour
         // 공격 애니메이션 호출
         _animatorController.SetState(AllState.Attack);
         _cooldownTimer = _attackCooldown; // 쿨타임 초기화
+
+        // 공격 범위안에 콜라이더 전부 배열로 저장
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position, _attackRange);
+
+        foreach (Collider enemyCollider in hitEnemies) // 하나씩 꺼내서 확인
+        {
+            // 슬라임 스텟 컴포넌트를 가지고 있으면 저장
+            SlimeState slime = enemyCollider.GetComponent<SlimeState>();
+
+            // 슬라임이 있고, 슬라임이 죽지 않았다면
+            if (slime != null && slime.IsDead == false)
+            {
+                // 배틀매니저 인스턴스가 있고, 플레이어 스탯이 있으면
+                if (BattleManager.Instance != null && _playerStat != null)
+                {
+                    // 배틀 매니저에게 플레이어 공격 함수 호출
+                    BattleManager.Instance.ExecutePlayerAttack(_playerStat, slime);
+                }
+                break;
+            }
+        }
     }
 
     // 아이템 줍기 함수
@@ -187,6 +237,30 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    // 피격시 경직 함수
+    public void TriggerHitReaction()
+    {
+        _stunTimer = _hitStunDuration; // 경직 타이머 가동
+        _moveDirection = Vector3.zero; // 이동 정지
+
+        if (_animatorController != null) // 애니메이션 컨트롤러 있으면
+        {
+            _animatorController.SetState(AllState.Hit); // 피격 애니메이션 재생
+        }
+    }
+
+    // 범위 기즈모로 그리기 함수
+    private void OnDrawGizmosSelected()
+    {
+        // 1. 줍기 범위 (노란색 선 원형)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _pickupRange);
+
+        // 2. 공격 범위 (빨간색 선 원형)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _attackRange);
     }
 }
 

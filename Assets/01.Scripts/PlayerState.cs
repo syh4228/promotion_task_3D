@@ -33,6 +33,7 @@ public class PlayerState : MonoBehaviour
     {
         // 시작시 체력 최대체력으로 
         _currentHp = _maxHp;
+        UpdateUI(); // UI 업데이트
     }
 
     // 대미지 반영 함수
@@ -44,10 +45,23 @@ public class PlayerState : MonoBehaviour
         _currentHp = _currentHp - finalDamage;
         Debug.Log($"데미지 {finalDamage} 받음. 현재 체력: {_currentHp}");
 
+        UpdateUI(); // UI 업데이트
+
         if (_currentHp <= 0 ) // 현재체력이 0이하면
         {
             _currentHp = 0; // 현제체력 0으로 수정
             Die(); // 죽음 함수 호출
+        }
+        else // 살아있다면 피격 경직 발동
+        {
+            // 플레이어컨트롤러 컴포넌트가 있으면 저장
+            PlayerController myController = GetComponent<PlayerController>();
+
+            if (myController != null) // 컨트롤러가 있으면
+            {
+                // 피격시 경직 함수 호출
+                myController.TriggerHitReaction();
+            }
         }
     }
 
@@ -65,6 +79,8 @@ public class PlayerState : MonoBehaviour
         }
 
         Debug.Log($"체력 {finalHeal} 회복. 현재 체력: {_currentHp}");
+
+        UpdateUI(); // UI 업데이트
     }
 
     // 사망 처리 함수
@@ -79,6 +95,15 @@ public class PlayerState : MonoBehaviour
         else
         {
             Debug.LogWarning("애니메이터 컨트롤러가 연결되지 않았습니다");
+        }
+    }
+
+    // UI 업데이트 함수
+    private void UpdateUI()
+    {
+        if (UIManager.Instance != null) 
+        {
+            UIManager.Instance.UpdateHpText(_currentHp, _maxHp);
         }
     }
 }
