@@ -15,10 +15,14 @@ public class PlayerController : MonoBehaviour
     [Header("점프 설정")]
     public float JumpForec = 7.0f;
 
+    [Header("줍기 설정")]
+    [SerializeField] private float _pickupRange = 2.0f; // 아이템 인식 범위
+
     [Header("컴포넌트")]
     [SerializeField] private Rigidbody _rigidbody; // 리지드바디 연결
     [SerializeField] private Groundcheck _groundCheck;
     [SerializeField] private Animatorcontroller _animatorController;
+    [SerializeField] private InventoryManager _inventoryManager; // 인벤토리 연결
 
     private Vector3 _moveDirection;
     private bool _jumpRequested;
@@ -88,10 +92,10 @@ public class PlayerController : MonoBehaviour
             _animatorController.SetState(AllState.Talk);
         }
 
-        // 드롭 (V)
+        // 줍기 (V)
         if (Input.GetKeyDown(KeyCode.V))
         {
-            _animatorController.SetState(AllState.Drop);
+            TryPickupItem();
         }
     }
 
@@ -149,6 +153,40 @@ public class PlayerController : MonoBehaviour
         // 공격 애니메이션 호출
         _animatorController.SetState(AllState.Attack);
         _cooldownTimer = _attackCooldown; // 쿨타임 초기화
+    }
+
+    // 아이템 줍기 함수
+    private void TryPickupItem()
+    {
+        // 내 주변 반지름(_pickupRange) 이내의 모든 콜라이더 영역 검사 저장
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, _pickupRange);
+
+        foreach (Collider hitCollider in hitColliders) // 하나씩 꺼내서 확인
+        {
+            // 만약 오브젝트의 태그가 "Item" 이라면
+            if (hitCollider.CompareTag("Item") == true)
+            {
+                // 애니메이션 컨트롤러 있으면
+                if (_animatorController != null)
+                {
+                    // 줍기 애니메이션 실행
+                    _animatorController.SetState(AllState.Drop);
+                }
+
+                // 인벤토리 매니저가 있으면
+                if (_inventoryManager != null)
+                {
+                    // 인벤토리 함수 호출
+                    _inventoryManager.AddPotion();
+                }
+
+                // 오브젝트 비활성화 및 파괴
+                hitCollider.gameObject.SetActive(false);
+                Destroy(hitCollider.gameObject);
+
+                break;
+            }
+        }
     }
 }
 
