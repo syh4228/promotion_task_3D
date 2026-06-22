@@ -14,7 +14,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
   m_GUID: 0535187146791744abbd767ca09db8a3
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 19208f27465a8f247aed29284d44699a
+    m_Address: Icon/Icon_Item_RedVial
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 298c1c8e38e9ae24bb3a4c53d195f5dd
+    m_Address: Icon/Icon_Item_BluePill
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4fca3fbd89928a644b2d22c4279c8f37
+    m_Address: 3DObject/RedVial
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a62d6a59f510653419a2b519def36161
+    m_Address: 3DObject/RedPotin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bf3bfe1ef29e8b646a3330f0fe8ece00
+    m_Address: Icon/Icon_Item_RedPotion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f358f05557171f84cbc46fe63370530d
+    m_Address: 3DObject/BluePill
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 5dd26f6749aa84f4488fb32c54700541, type: 2}
   m_SchemaSet:

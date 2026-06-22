@@ -8,7 +8,7 @@
     "Speed": null,
     "MaxStackCount": 10,
     "SellingPrice": 25,
-    "PurchasePrice": "50",
+    "PurchasePrice": 50,
     "IconPath": "Icon/Icon_Item_RedPotion",
     "PrefabPath": "3DObject/RedPotin"
   },
@@ -21,7 +21,7 @@
     "Speed": null,
     "MaxStackCount": 10,
     "SellingPrice": 50,
-    "PurchasePrice": "100",
+    "PurchasePrice": 100,
     "IconPath": "Icon/Icon_Item_RedVial",
     "PrefabPath": "3DObject/RedVial"
   },
@@ -34,7 +34,7 @@
     "Speed": 0.5,
     "MaxStackCount": 10,
     "SellingPrice": 75,
-    "PurchasePrice": "150",
+    "PurchasePrice": 150,
     "IconPath": "Icon/Icon_Item_BluePill",
     "PrefabPath": "3DObject/BluePill"
   }
