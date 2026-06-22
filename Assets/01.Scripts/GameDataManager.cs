@@ -17,7 +17,7 @@ public class GameDataManager : MonoBehaviour
     [Serializable]
     private class SerializationWrapper<T>
     {
-        public List<T> item;
+        public List<T> items;
     }
 
     public Dictionary<string, ItemData> itemDataList {  get; private set; } = new Dictionary<string, ItemData> ();
