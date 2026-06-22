@@ -1,0 +1,41 @@
+[
+  {
+    "Id": "Item_RedVial",
+    "Name": "회복 포션",
+    "Description": "체력을 50을 회복시켜준다",
+    "ItemType": "Potion",
+    "Heal": 50,
+    "Speed": null,
+    "MaxStackCount": 10,
+    "SellingPrice": 25,
+    "PurchasePrice": "50",
+    "IconPath": "Icon/Icon_Item_RedPotion",
+    "PrefabPath": "3DObject/RedPotin"
+  },
+  {
+    "Id": "Item_RedPotion",
+    "Name": "작은 회복 포션",
+    "Description": "체력을 25을 회복 시켜준다",
+    "ItemType": "Potion",
+    "Heal": 25,
+    "Speed": null,
+    "MaxStackCount": 10,
+    "SellingPrice": 50,
+    "PurchasePrice": "100",
+    "IconPath": "Icon/Icon_Item_RedVial",
+    "PrefabPath": "3DObject/RedVial"
+  },
+  {
+    "Id": "Item_BluePill",
+    "Name": "빨라 알약",
+    "Description": "일시적으로 이동속도가 증가한다.",
+    "ItemType": "Buff",
+    "Heal": null,
+    "Speed": 0.5,
+    "MaxStackCount": 10,
+    "SellingPrice": 75,
+    "PurchasePrice": "150",
+    "IconPath": "Icon/Icon_Item_BluePill",
+    "PrefabPath": "3DObject/BluePill"
+  }
+]
