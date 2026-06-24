@@ -216,11 +216,17 @@ public class PlayerController : MonoBehaviour
             // 만약 오브젝트의 태그가 "Item" 이라면
             if (hitCollider.CompareTag("Item") == true)
             {
+                // 필드 아이템 컴포넌트에서 데이터 가져와 저장
+                FieldItem fieldItem = hitCollider.GetComponent<FieldItem>();
+
                 // 애니메이션 컨트롤러 있으면
-                if (_animatorController != null)
+                if (fieldItem != null)
                 {
-                    // 줍기 애니메이션 실행
-                    _animatorController.SetState(AllState.Drop);
+                    if (_animatorController != null)
+                    {
+                        // 줍기 애니메이션 실행
+                        _animatorController.SetState(AllState.Drop);
+                    }
                 }
 
                 // 인벤토리 매니저가 있으면
