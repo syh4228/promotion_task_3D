@@ -226,21 +226,15 @@ public class PlayerController : MonoBehaviour
                     {
                         // 줍기 애니메이션 실행
                         _animatorController.SetState(AllState.Drop);
+
+                        InventoryManager.Instance.AddItem(fieldItem.ItemDataId, 1);
+
+                        hitCollider.gameObject.SetActive(false);
+                        Destroy(hitCollider.gameObject);
+
+                        break;
                     }
                 }
-
-                // 인벤토리 매니저가 있으면
-                if (_inventoryManager != null)
-                {
-                    // 인벤토리 함수 호출
-                    _inventoryManager.AddPotion();
-                }
-
-                // 오브젝트 비활성화 및 파괴
-                hitCollider.gameObject.SetActive(false);
-                Destroy(hitCollider.gameObject);
-
-                break;
             }
         }
     }
@@ -267,6 +261,24 @@ public class PlayerController : MonoBehaviour
         // 2. 공격 범위 (빨간색 선 원형)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, _attackRange);
+    }
+
+    // 이동속도 버프 함수
+    public void ApplySpeedBuff(float speedIncrease, float duration)
+    {
+        StartCoroutine(CoSpeedBuff(speedIncrease, duration));
+    }
+
+    // 이동속도 버프 끄기 함수
+    private System.Collections.IEnumerator CoSpeedBuff(float speedIncrease, float duration)
+    {
+        _moveSpeed += speedIncrease;
+        Debug.Log($"버프 발동! 속도 {speedIncrease} 증가. 현재 속도: {_moveSpeed}");
+
+        yield return new WaitForSeconds(duration);
+
+        _moveSpeed -= speedIncrease;
+        Debug.Log($"버프 종료! 원래 속도로 복귀. 현재 속도: {_moveSpeed}");
     }
 }
 
