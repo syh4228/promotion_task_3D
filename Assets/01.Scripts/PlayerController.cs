@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animatorcontroller _animatorController;
     [SerializeField] private InventoryManager _inventoryManager; // 인벤토리 연결
     [SerializeField] private PlayerState _playerStat; // 스텟 연결
+    [SerializeField] private GameObject _inventoryUIObject;
 
     private Vector3 _moveDirection;
     private bool _jumpRequested;
@@ -119,6 +120,22 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.V))
         {
             TryPickupItem();
+        }
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (_inventoryUIObject != null)
+            {
+                // 현재 UI가 켜져 있는지 확인 (true/false)
+                bool isInventoryOpen = _inventoryUIObject.activeSelf;
+
+                // 켜져 있으면 끄고(!true = false), 꺼져 있으면 켭니다(!false = true)
+                _inventoryUIObject.SetActive(!isInventoryOpen);
+            }
+            else
+            {
+                Debug.LogWarning("인벤토리 UI 오브젝트가 연결되지 않았습니다!");
+            }
         }
     }
 
