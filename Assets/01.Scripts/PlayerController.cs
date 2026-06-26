@@ -1,6 +1,4 @@
-﻿using Unity.VisualScripting;
-using UnityEngine;
-using UnityEngine.UIElements;
+﻿using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 
@@ -124,17 +122,22 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if (_inventoryUIObject != null)
+            if (UIManager.Instance != null)
             {
-                // 현재 UI가 켜져 있는지 확인 (true/false)
+                UIManager.Instance.ToggleInventoryUI();
+
                 bool isInventoryOpen = _inventoryUIObject.activeSelf;
 
-                // 켜져 있으면 끄고(!true = false), 꺼져 있으면 켭니다(!false = true)
-                _inventoryUIObject.SetActive(!isInventoryOpen);
-            }
-            else
-            {
-                Debug.LogWarning("인벤토리 UI 오브젝트가 연결되지 않았습니다!");
+                if (isInventoryOpen)
+                {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
+                else
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
             }
         }
     }
@@ -225,6 +228,12 @@ public class PlayerController : MonoBehaviour
     // 아이템 줍기 함수
     private void TryPickupItem()
     {
+        if (GameManager.Inst == null || GameManager.Inst.Inventory == null)
+        {
+            Debug.LogWarning("아직 매니저가 준비되지 않았습니다!");
+            return;
+        }
+
         // 내 주변 반지름(_pickupRange) 이내의 모든 콜라이더 영역 검사 저장
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, _pickupRange);
 
@@ -244,7 +253,7 @@ public class PlayerController : MonoBehaviour
                         // 줍기 애니메이션 실행
                         _animatorController.SetState(AllState.Drop);
 
-                        InventoryManager.Instance.AddItem(fieldItem.ItemDataId, 1);
+                        GameManager.Inst.Inventory.AddItem(fieldItem.ItemDataId, 1);
 
                         hitCollider.gameObject.SetActive(false);
                         Destroy(hitCollider.gameObject);

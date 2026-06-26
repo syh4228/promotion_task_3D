@@ -17,36 +17,36 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        // 게임 시작 시 마우스 커서를 숨기고 화면 중앙에 고정
+        // 게임 시작 시 마우스 잠금
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void LateUpdate()
     {
-        if (Target == null)
+        if (Target == null) return;
+
+        // 마우스가 잠겨있을 때만 회전 값을 갱신
+        if (Cursor.lockState == CursorLockMode.Locked)
         {
-            return;
+            float mouseX = Input.GetAxis("Mouse X") * MouseSensitivity;
+            float mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity;
+
+            _yaw += mouseX;
+            _pitch -= mouseY;
+            _pitch = Mathf.Clamp(_pitch, PitchMin, PitchMax);
         }
-
-        // 마우스 이동량 받아오기
-        float mouseX = Input.GetAxis("Mouse X") * MouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity;
-
-        // 현재 각도에 마우스 이동량 더하기
-        _yaw += mouseX;
-        _pitch -= mouseY;
-
-        // 위아래 각도(Pitch) 제한
-        _pitch = Mathf.Clamp(_pitch, PitchMin, PitchMax);
 
         // 회전값 계산
         Quaternion rotation = Quaternion.Euler(_pitch, _yaw, 0);
 
-        // 카메라 위치 적용 
+        // 카메라 위치 및 바라보는 방향 계산
         Vector3 targetPosition = Target.position + Vector3.up * HeightOffset;
+
+        // 회전값에 따라 거리만큼 뒤로 이동
         transform.position = targetPosition - (rotation * Vector3.forward * Distance);
 
-        // 카메라가 캐릭터를 바라보게 함
+        // 캐릭터를 바라보게 함
         transform.LookAt(targetPosition);
     }
 }
