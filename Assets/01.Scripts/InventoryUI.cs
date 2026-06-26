@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
+using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private GameObject Prefab_Slot;
-    [SerializeField] private Transform Transform_UISlotRoot;
-    [SerializeField] private UIButton Button_UseSelectItem;
-    [SerializeField] private UIButton Button_CloseSelf;
-    [SerializeField] private UIButton Button_CloseSelfAllArea;
+    [SerializeField] private Transform Transform_UISlotRoot; 
+    [SerializeField] private Button Button_UseSelectItem;
+    [SerializeField] private Button Button_CloseSelf;
+    // [SerializeField] private UIButton Button_CloseSelfAllArea;
 
     private Dictionary<long, InventorySlotUI> _itemSlotList = new Dictionary<long, InventorySlotUI>();
 
@@ -16,21 +16,43 @@ public class InventoryUI : MonoBehaviour
 
     private void OnEnable()
     {
-        Button_UseSelectItem.BindOnClickButtonEvent(OnClick_UseSelectItem, true);
-        Button_CloseSelf.BindOnClickButtonEvent(OnClick_ClosePopup);
-        Button_CloseSelfAllArea.BindOnClickButtonEvent(OnClick_ClosePopup);
-        
+        if (Button_UseSelectItem != null)
+        {
+            Button_UseSelectItem.onClick.RemoveAllListeners();
+            Button_UseSelectItem.onClick.AddListener(OnClick_UseSelectItem);
+        }
+        else
+        {
+            Debug.LogError("InventoryUI: Button_UseSelectItem이 연결되지 않았습니다! 인스펙터를 확인하세요.");
+        }
+        // Button_CloseSelfAllArea.BindOnClickButtonEvent(OnClick_ClosePopup);
+
+        if (Button_CloseSelf != null)
+        {
+            Button_CloseSelf.onClick.RemoveAllListeners();
+            Button_CloseSelf.onClick.AddListener(OnClick_ClosePopup);
+        }
+
         SetInventoryItemSlotOnEnable();
         ActiveUseSelectItemButton(false);
+
+        GameManager.Inst.Inventory.OnItemAdded += CreateSlot;
+        GameManager.Inst.Inventory.OnItemUpdated += RefreshSlot;
     }
 
     private void OnDisable()
     {
-        Button_UseSelectItem.UnBindAllOnClickButtonEvent();
+        GameManager.Inst.Inventory.OnItemAdded -= CreateSlot;
+        GameManager.Inst.Inventory.OnItemUpdated -= RefreshSlot;
     }
 
     private void SetInventoryItemSlotOnEnable()
     {
+        if (InventoryManager.Instance == null)
+        {
+            return;
+        }
+
         if (_itemSlotList.Count > 0)
         {
             foreach (var slot in _itemSlotList)
@@ -42,9 +64,15 @@ public class InventoryUI : MonoBehaviour
 
         var itemList = InventoryManager.Instance.GetPlayerItemList();
 
+        Debug.Log($"인벤토리 아이템 개수 : {itemList.Count}");
+
+        foreach (var item in itemList)
+        {
+            Debug.Log($"아이템 발견 : {item.ItemDataId}");
+        }
+
         if (itemList == null || itemList.Count == 0)
         {
-            Debug.LogWarning("보유한 아이템이 없습니다!");
             return;
         }
 
@@ -67,11 +95,12 @@ public class InventoryUI : MonoBehaviour
 
     private void RequestSelectedUseItem()
     {
-        bool isItemRemoved = InventoryManager.Instance.RequestUseItem(_currentSelectedItemUniqueId);
+        long idToUse = _currentSelectedItemUniqueId;
+
+        bool isItemRemoved = InventoryManager.Instance.RequestUseItem(idToUse);
 
         if (isItemRemoved == true)
         {
-            RemoveItemSlot(_currentSelectedItemUniqueId);
             _currentSelectedItemUniqueId = 0;
             ActiveUseSelectItemButton(false);
         }
@@ -79,7 +108,10 @@ public class InventoryUI : MonoBehaviour
 
     private void ActiveUseSelectItemButton(bool isActive)
     {
-        Button_UseSelectItem.gameObject.SetActive(isActive);
+        if (Button_UseSelectItem != null)
+        {
+            Button_UseSelectItem.gameObject.SetActive(isActive);
+        }
     }
 
     private void RemoveItemSlot(long removedItemUniqueId)
@@ -98,6 +130,8 @@ public class InventoryUI : MonoBehaviour
 
     private void CreateSlot(long itemUniqueId, string itemDataId, int itemStackCount)
     {
+        Debug.Log($"슬롯 생성을 시도합니다: {itemDataId}");
+
         var gObj = Instantiate(Prefab_Slot, Transform_UISlotRoot);
         if (gObj == null) return;
 
@@ -128,5 +162,22 @@ public class InventoryUI : MonoBehaviour
             }
         }
         Debug.LogWarning($"자식 슬롯 {selectedItemUniqueId} 선택됨!");
+    }
+
+    private void RefreshSlot(long uniqueId)
+    {
+        if (!_itemSlotList.ContainsKey(uniqueId)) return;
+
+        var item = InventoryManager.Instance.GetPlayerItemList().Find(i => i.ItemUniqueId == uniqueId);
+
+        if (item == null)
+        {
+            RemoveItemSlot(uniqueId);
+        }
+        else
+        {
+            // 있으면 수량만 갱신
+            _itemSlotList[uniqueId].InitSlot(item.ItemUniqueId, item.ItemDataId, item.ItemStackCount);
+        }
     }
 }

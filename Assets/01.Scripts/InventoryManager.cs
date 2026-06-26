@@ -21,6 +21,9 @@ public class InventoryManager : MonoBehaviour
         Instance = this;
     }
 
+    public event System.Action<long, string, int> OnItemAdded;
+    public event System.Action<long> OnItemUpdated;
+
     // 인벤토리 UI에 리스트 넘겨주는 함수
     public List<ItemModel> GetPlayerItemList()
     {
@@ -30,6 +33,8 @@ public class InventoryManager : MonoBehaviour
     // 플레이어가 아이템을 주웠을떄 호출하는 함수
     public void AddItem(string itemDataId, int count)
     {
+        Debug.Log("AddItem 호출됨");
+
         ItemModel newItem = new ItemModel
         {
             ItemUniqueId = DateTime.UtcNow.Ticks, // 고유번호 발급
@@ -40,7 +45,8 @@ public class InventoryManager : MonoBehaviour
         _playerInventory.Add(newItem);
         Debug.Log($"[InventoryManager] 가방에 아이템 추가됨: {itemDataId}");
 
-        UpdateUI(); // UI 갱신
+        Debug.Log("이벤트 발생");
+        OnItemAdded?.Invoke(newItem.ItemUniqueId, newItem.ItemDataId, newItem.ItemStackCount);
     }
 
     // 인벤토리 UI에서 아이템 사용하면 호출하는 함수
@@ -86,13 +92,8 @@ public class InventoryManager : MonoBehaviour
             _playerInventory.Remove(targetItem);
         }
 
-        UpdateUI(); // 아이템을 썼으니 UI 갱신
-        return true; // 성공적으로 사용하고 지웠음을 UI에게 알림
-    }
+        OnItemUpdated?.Invoke(uniqueId);
 
-    // UI 업데이트
-    private void UpdateUI()
-    {
-        
+        return true; // 성공적으로 사용하고 지웠음을 UI에게 알림
     }
 }

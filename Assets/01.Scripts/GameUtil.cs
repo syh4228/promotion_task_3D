@@ -10,11 +10,15 @@ public static class GameUtil
 
     public static void LoadFullData()
     {
-        GameDataManager.Instance.LoadItemData("Item");
+        GameManager.Inst.Data.LoadItemData("DNItem");
     }
 
     public static async UniTask<Sprite> LoadAndSetSpriteImage(Image targetImage, string spritePath)
     {
+        Debug.Log($"ResourceManager.Instance = {ResourceManager.Instance}");
+        Debug.Log($"targetImage = {targetImage}");
+        Debug.Log($"spritePath = {spritePath}");
+
         Sprite sprite = await ResourceManager.Instance.LoadSprite(spritePath);
         if (sprite != null)
         {

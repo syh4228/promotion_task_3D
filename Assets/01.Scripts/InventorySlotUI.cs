@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class InventorySlotUI : MonoBehaviour
 {
     [SerializeField] private Text Text_StackCount;
-    [SerializeField] private UIButton Button_Slot;
+    [SerializeField] private Button Button_Slot;
     [SerializeField] private Image Image_Icon;
     [SerializeField] private Image Image_Frame;
     [SerializeField] private Image Image_Selected;
@@ -19,12 +19,15 @@ public class InventorySlotUI : MonoBehaviour
     private void OnEnable()
     {
         Image_Selected.gameObject.SetActive(false);
-        Button_Slot.BindOnClickButtonEvent(OnClick_SelectItem);
+
+        Button_Slot.onClick.RemoveAllListeners();
+        Button_Slot.onClick.AddListener(OnClick_SelectItem);
     }
 
     public void SetIcon(string itemDataId, int itemCount)
     {
-        var itemData = GameDataManager.Instance.GetItemData(itemDataId);
+        var itemData = GameManager.Inst.Data.GetItemData(itemDataId);
+
         if (itemData == null)
         {
             Debug.LogWarning($"Item 데이터를 불러올 수 없습니다! 경로:{itemDataId}");
@@ -32,6 +35,7 @@ public class InventorySlotUI : MonoBehaviour
         }
 
         string iconPath = itemData.IconPath;
+
         if (string.IsNullOrEmpty(iconPath) == true)
         {
             Debug.LogWarning($"Item 데이터에 아이콘 경로가 존재하지 않습니다.");
@@ -71,6 +75,9 @@ public class InventorySlotUI : MonoBehaviour
 
     public void ChangeSelectedState(bool isSelected)
     {
-        Image_Selected.gameObject.SetActive(isSelected);
+        if (Image_Selected != null)
+        {
+            Image_Selected.gameObject.SetActive(isSelected);
+        }
     }
 }
