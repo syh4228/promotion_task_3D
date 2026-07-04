@@ -15,6 +15,7 @@ public class ShopUI : MonoBehaviour
     [Header("슬롯 연결")]
     [SerializeField] private Transform _slotParent; // 생성될 슬롯의 부모
     [SerializeField] private GameObject _slotPrefab; // 슬롯 프리팹
+    [SerializeField] private Button _exitButton; // 닫기 버튼
 
     [Header("판매 아이템 목록 (Id)")]
     [SerializeField] private List<string> _shopItemIdList = new List<string>();
@@ -41,6 +42,12 @@ public class ShopUI : MonoBehaviour
             _confirmPurchaseButton.onClick.RemoveAllListeners();
             // 클릭이벤트 등록
             _confirmPurchaseButton.onClick.AddListener(OnClickConfirmPurchase);
+        }
+
+        if (_exitButton != null)
+        {
+            _exitButton.onClick.RemoveAllListeners();
+            _exitButton.onClick.AddListener(OnClickExit);
         }
 
         ActivateConfirmButton(false); // 버튼 비활성화
@@ -149,6 +156,21 @@ public class ShopUI : MonoBehaviour
         {
             // 실제 구매 처리 요청
             _viewModel.RequestPurchase(_currentSelectedItemId);
+        }
+    }
+
+    // 닫기 버튼 함수
+    private void OnClickExit()
+    {
+        if (UIManager.Instance != null)
+        {
+            // 상점UI 닫을때 인벤토리도 함께 닫기
+            UIManager.Instance.CloseTradeUI();
+        }
+        else
+        {
+            // UIManager를 못 찾는 예외 상황이면 최소한 상점 패널만이라도 끈다
+            gameObject.SetActive(false);
         }
     }
 
