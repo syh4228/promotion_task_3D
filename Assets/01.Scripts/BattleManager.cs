@@ -19,6 +19,34 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    // 피드백 반영
+    // 인벤토리매니저가 쏘는 아이템 상요됨 이벤트 구독
+    private void OnEnable()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemUsed += HandleItemUsed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemUsed -= HandleItemUsed;
+        }
+    }
+
+    // 인벤토리가 방송한 이벤트를 받아서, 포션류일 때만 회복 처리
+    private void HandleItemUsed(ItemData itemData)
+    {
+        if (itemData.ItemType == "Potion" && itemData.Heal > 0)
+        {
+            RequestPlayerHeal(itemData.Heal);
+            Debug.Log($"[BattleManager] {itemData.Name} 사용, 체력 {itemData.Heal} 회복!");
+        }
+    }
+
     // 플레이어의 공격 계산 함수
     public void ExecutePlayerAttack(PlayerState player, SlimeState enemy)
     {
