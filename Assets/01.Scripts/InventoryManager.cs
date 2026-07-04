@@ -23,6 +23,8 @@ public class InventoryManager : MonoBehaviour
 
     public event System.Action<long, string, int> OnItemAdded;
     public event System.Action<long> OnItemUpdated;
+    // 아이템 사용됬는지 확인 이벤트
+    public event System.Action<ItemData> OnItemUsed;
 
     // 인벤토리 UI에 리스트 넘겨주는 함수
     public List<ItemModel> GetPlayerItemList()
@@ -62,27 +64,8 @@ public class InventoryManager : MonoBehaviour
 
         if (itemData == null) return false;
 
-        // ItemType에 따라 효과 적용
-        if (itemData.ItemType == "Potion")
-        {
-            // 배틀 매니저를 통해 회복 실행
-            if (itemData.Heal > 0 && BattleManager.Instance != null)
-            {
-                BattleManager.Instance.RequestPlayerHeal(itemData.Heal);
-                Debug.Log($"[InventoryManager] {itemData.Name} 사용! 체력 {itemData.Heal} 회복!");
-            }
-        }
-        else if (itemData.ItemType == "Buff")
-        {
-            // 플레이어 이동속도 버프 함수 호출
-            PlayerController player = FindFirstObjectByType<PlayerController>();
-
-            if (player != null && itemData.Speed > 0)
-            {
-                player.ApplySpeedBuff(itemData.Speed, 5.0f);
-                Debug.Log($"[InventoryManager] {itemData.Name} 사용! 5초간 스피드 {itemData.Speed} 증가!");
-            }
-        }
+        // 피드백 반영 이 아이템이 사용됬다고만 알림
+        OnItemUsed?.Invoke(itemData);
 
         // 사용한 아이템 처리
         targetItem.ItemStackCount--;
