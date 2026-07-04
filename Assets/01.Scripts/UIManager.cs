@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
 
     [Header("UI 연결")]
     [SerializeField] private Text _hpText;     // HP 텍스트 표기
-    [SerializeField] private Text _potionText; // 포션 사용갯수 텍스트 표기
+    [SerializeField] private Text _goldText; // 보유 골드 텍스트 표기
 
     [Header("인벤토리 창 연결")]
     [SerializeField] private GameObject _inventoryUIObject;
@@ -45,6 +45,18 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogWarning("[UIManager] PlayerState를 찾을 수 없어 체력 UI를 구독 못했습니다.");
         }
+
+        if (CurrencyManager.Instance != null)
+        {
+            // 골드 변경 이벤트 구독
+            CurrencyManager.Instance.OnGoldChanged += UpdateGoldText;
+            // 변경된 골드 값 받아오기
+            UpdateGoldText(CurrencyManager.Instance.Gold);
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] CurrencyManager를 찾을 수 없어 골드 UI를 구독하지 못했습니다.");
+        }
     }
 
     // 구독 해제
@@ -65,12 +77,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // 포션 텍스트 표시 함수
-    public void UpdatePotionText(int potionCount)
+    // 골드 텍스트 표시 함수
+    public void UpdateGoldText(int gold)
     {
-        if (_potionText != null)
+        if (_goldText != null)
         {
-            _potionText.text = "사용갯수: " + potionCount;
+            _goldText.text = "보유 골드: " + gold;
         }
     }
 

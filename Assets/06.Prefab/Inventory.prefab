@@ -398,7 +398,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5101246083022950606}
+  - {fileID: 4271243763463417384}
   m_Father: {fileID: 1698000248105721137}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -966,11 +966,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5403a59296129f4bba53a9037837450, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryUI
-  Prefab_Slot: {fileID: 2947969716924607827}
+  Prefab_Slot: {fileID: 0}
   Transform_UISlotRoot: {fileID: 652639190863468276}
-  Button_UseSelectItem: {fileID: 451557588357760811}
-  Button_CloseSelf: {fileID: 7938721711535123042}
-  Button_CloseSelfAllArea: {fileID: 4390059814845713176}
+  Button_UseSelectItem: {fileID: 0}
+  Button_CloseSelf: {fileID: 0}
 --- !u!1 &6487461805733654906
 GameObject:
   m_ObjectHideFlags: 0
@@ -1500,10 +1499,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8941144820263485597, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
-      propertyPath: Button_Slot
-      value: 
-      objectReference: {fileID: 607044162644832922}
+    - target: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9169099598533260579, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
       propertyPath: m_Name
       value: SampleUI_ItemSlot
@@ -1513,24 +1532,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
---- !u!114 &607044162644832922 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6898039243244661482, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
-  m_PrefabInstance: {fileID: 6329357754563958896}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f120d7e7ea56981468405382cbcdd727, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIButton
---- !u!1 &2947969716924607827 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9169099598533260579, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
-  m_PrefabInstance: {fileID: 6329357754563958896}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &5101246083022950606 stripped
+--- !u!224 &4271243763463417384 stripped
 RectTransform:
-  m_CorrespondingSourceObject: {fileID: 1233178290454890686, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
+  m_CorrespondingSourceObject: {fileID: 7823004088835044952, guid: 314a40335ae4d3144a33508ec7d86112, type: 3}
   m_PrefabInstance: {fileID: 6329357754563958896}
   m_PrefabAsset: {fileID: 0}
