@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerState : MonoBehaviour
 {
@@ -11,6 +12,25 @@ public class PlayerState : MonoBehaviour
 
     [Header("컴포넌트 연결")]
     [SerializeField] private Animatorcontroller _animatorController; // 애니메이션 컨트롤러 연결
+
+    public event Action<int, int> OnHpChanged; // 체력 변경 이벤트 (현재체력, 최대체력)
+    public event Action OnDied; // 사망 이벤트
+
+    public int CurrentHP // 외부에 현제 체력 알리기
+    {
+        get
+        {
+            return _currentHp;
+        }
+    } // public int CurrentHP => _currentHp;  (람다식 줄이기)
+
+    public int MaxHp // 외부에 최대체력 알리기
+    {
+        get
+        {
+            return _maxHp;
+        }
+    }
 
     public bool IsDead // 외부에 죽었을시 알리기
     {
@@ -33,7 +53,7 @@ public class PlayerState : MonoBehaviour
     {
         // 시작시 체력 최대체력으로 
         _currentHp = _maxHp;
-        UpdateUI(); // UI 업데이트
+        NotifyHpChanged(); // UI 업데이트 대신 이벤트 방송
     }
 
     // 대미지 반영 함수
@@ -45,7 +65,7 @@ public class PlayerState : MonoBehaviour
         _currentHp = _currentHp - finalDamage;
         Debug.Log($"데미지 {finalDamage} 받음. 현재 체력: {_currentHp}");
 
-        UpdateUI(); // UI 업데이트
+        NotifyHpChanged(); // UI 업데이트 대신 이벤트 방송
 
         if (_currentHp <= 0 ) // 현재체력이 0이하면
         {
@@ -80,7 +100,7 @@ public class PlayerState : MonoBehaviour
 
         Debug.Log($"체력 {finalHeal} 회복. 현재 체력: {_currentHp}");
 
-        UpdateUI(); // UI 업데이트
+        NotifyHpChanged(); // UI 업데이트 대신 이벤트 방송
     }
 
     // 사망 처리 함수
@@ -96,14 +116,14 @@ public class PlayerState : MonoBehaviour
         {
             Debug.LogWarning("애니메이터 컨트롤러가 연결되지 않았습니다");
         }
+
+        OnDied?.Invoke(); // 사망 이벤트로 방송
     }
 
-    // UI 업데이트 함수
-    private void UpdateUI()
+    // 기존 UpdataUI() 함수 대체
+    // 직접 호출에서 구독자에게 방송
+    private void NotifyHpChanged()
     {
-        if (UIManager.Instance != null) 
-        {
-            UIManager.Instance.UpdateHpText(_currentHp, _maxHp);
-        }
+        OnHpChanged?.Invoke(_currentHp, _maxHp);
     }
 }
