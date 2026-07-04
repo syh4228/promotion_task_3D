@@ -152,14 +152,14 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            // 상점과 UI가 열려있으면
-            if (UIManager.Instance.IsTradeUIOpen() == true)
-            {
-                return; // 반환
-            }
-
             if (UIManager.Instance != null)
             {
+                // 상점 UI가 열려있으면
+                if (UIManager.Instance.IsTradeUIOpen() == true)
+                {
+                    return; // 반환
+                }
+
                 UIManager.Instance.ToggleInventoryUI();
 
                 bool isInventoryOpen = _inventoryUIObject.activeSelf;
