@@ -47,6 +47,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // 인벤토리 매니저 아이템 사용됨 이벤트 구독
+    private void OnEnable()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemUsed += HandleItemUsed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemUsed -= HandleItemUsed;
+        }
+    }
+
+    // 아이템 타입이 버프일떄만 처리
+    private void HandleItemUsed(ItemData itemData)
+    {
+        if (itemData.ItemType == "Buff" && itemData.Speed > 0)
+        {
+            ApplySpeedBuff(itemData.Speed, 5.0f);
+            Debug.Log($"[PlayerController] {itemData.Name} 사용 이벤트 수신! 5초간 스피드 {itemData.Speed} 증가!");
+        }
+    }
+
     private void Update()
     {
         if (_stunTimer > 0f) // 경직 타이머가 0보다 크면
@@ -196,13 +223,17 @@ public class PlayerController : MonoBehaviour
         _rigidbody.AddForce(Vector3.up * JumpForec, ForceMode.Impulse);
     }
 
-
+    // 피드백 반영 애니메이션 재생 + 쿨타임 처리와 실제 타격 프레임 호출 함수 분리
     void StartAttack() // 공격함수
     {
         // 공격 애니메이션 호출
         _animatorController.SetState(AllState.Attack);
         _cooldownTimer = _attackCooldown; // 쿨타임 초기화
+    }
 
+    // 애니메이션컨트롤러에서 이벤트로 등록될 함수
+    public void OnAttackHit()
+    {
         // 공격 범위안에 콜라이더 전부 배열로 저장
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position, _attackRange);
 
