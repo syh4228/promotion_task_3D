@@ -17,6 +17,9 @@ public class PlayerController : MonoBehaviour
     [Header("줍기 설정")]
     [SerializeField] private float _pickupRange = 2.0f; // 아이템 인식 범위
 
+    [Header("상호작용 설정")]
+    [SerializeField] private float _interactRange = 2.0f; // 상호작용 인식 범위
+
     [Header("피격 설정")]
     [SerializeField] private float _hitStunDuration = 0.4f; // 플레이어 경직 시간
     private float _stunTimer = 0f; // 경직 타이머
@@ -138,7 +141,7 @@ public class PlayerController : MonoBehaviour
         // 상호작용 / 말걸기 (E)
         if (Input.GetKeyDown(KeyCode.E))
         {
-            _animatorController.SetState(AllState.Talk);
+            TryInteract(); // 상호작용 함수 호출
         }
 
         // 줍기 (V)
@@ -149,6 +152,12 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.B))
         {
+            // 상점과 UI가 열려있으면
+            if (UIManager.Instance.IsTradeUIOpen() == true)
+            {
+                return; // 반환
+            }
+
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.ToggleInventoryUI();
@@ -253,6 +262,35 @@ public class PlayerController : MonoBehaviour
                 }
                 break;
             }
+        }
+    }
+
+    // 상호작용 함수
+    private void TryInteract()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, _interactRange);
+
+        foreach (Collider hitCollider in hitColliders) // 하나씩 꺼내서 확인
+        {
+            // IInteractable 인터페이스를 가지고 있으면 저장
+            IInteractable interactable = hitCollider.GetComponent<IInteractable>();
+
+            if (interactable != null) // 상호작용 가능한 대상을 찾았으면
+            {
+                if (_animatorController != null)
+                {
+                    _animatorController.SetState(AllState.Talk); // 말 거는 애니메이션 재생
+                }
+
+                interactable.Interact(); // 실제 상호작용 실행 (상점 열기 등)
+                return; // 반환
+            }
+        }
+
+        // 상호작용 대상이 근처에 없으면 그냥 애니메이션만 재생
+        if (_animatorController != null)
+        {
+            _animatorController.SetState(AllState.Talk);
         }
     }
 
