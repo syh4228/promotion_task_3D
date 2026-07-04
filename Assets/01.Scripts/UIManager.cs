@@ -12,6 +12,9 @@ public class UIManager : MonoBehaviour
     [Header("인벤토리 창 연결")]
     [SerializeField] private GameObject _inventoryUIObject;
 
+    // PlayerState가 쏘는 이벤트 구독용
+    [SerializeField] private PlayerState _PlayerState;
+
     private void Awake()
     {
         Instance = this;
@@ -22,6 +25,31 @@ public class UIManager : MonoBehaviour
         if (_inventoryUIObject != null)
         {
             _inventoryUIObject.SetActive(false);
+        }
+
+        if (_PlayerState == null)
+        {
+            _PlayerState = FindFirstObjectByType<PlayerState>();
+        }
+
+        if (_PlayerState != null)
+        {
+            // 플레이어 체력변경 구독
+            _PlayerState.OnHpChanged += UpdateHpText;
+            UpdateHpText(_PlayerState.CurrentHP, _PlayerState.MaxHp);
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] PlayerState를 찾을 수 없어 체력 UI를 구독 못했습니다.");
+        }
+    }
+
+    // 구독 해제
+    private void OnDestroy()
+    {
+        if (_PlayerState != null)
+        {
+            _PlayerState.OnHpChanged -= UpdateHpText;
         }
     }
 
@@ -42,6 +70,7 @@ public class UIManager : MonoBehaviour
             _potionText.text = "사용갯수: " + potionCount;
         }
     }
+
     public void ToggleInventoryUI()
     {
         if (_inventoryUIObject != null)
