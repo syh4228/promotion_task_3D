@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 
     public InventoryManager Inventory { get; private set; }
     public GameDataManager Data { get; private set; }
+    public CurrencyManager Currency { get; private set; }
 
     private void Awake()
     {
@@ -21,6 +22,7 @@ public class GameManager : MonoBehaviour
 
         Data = gameObject.AddComponent<GameDataManager>();
         Inventory = gameObject.AddComponent<InventoryManager>();
+        Currency = gameObject.AddComponent<CurrencyManager>();
 
         GameUtil.LoadFullData();
     }

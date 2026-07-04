@@ -12,6 +12,13 @@ public class UIManager : MonoBehaviour
     [Header("인벤토리 창 연결")]
     [SerializeField] private GameObject _inventoryUIObject;
 
+    [Header("인벤토리 위치 설정")]
+    [SerializeField] private RectTransform _inventoryRectTransform; // 인벤토리 위치
+    // 인벤토리만 열 경우 가운데 위치
+    [SerializeField] private float _inventoryCenteredPosX = 0f;
+    // 상점 UI랑 같이 열린 경우 왼쪽 위치
+    [SerializeField] private float _inventoryTradePosX = -500f;
+
     [Header("상점 창 연결")]
     [SerializeField] private GameObject _shopUIObject;
 
@@ -91,11 +98,34 @@ public class UIManager : MonoBehaviour
         if (_inventoryUIObject != null)
         {
             bool isOpen = _inventoryUIObject.activeSelf;
+
+            if (isOpen == false)
+            {
+                // B키로 혼자 열 때는 항상 가운데로 위치를 맞춤
+                SetInventoryPositionX(_inventoryCenteredPosX);
+            }
+
             _inventoryUIObject.SetActive(!isOpen);
         }
         else
         {
             Debug.LogWarning("[UIManager] 인벤토리 UI 오브젝트가 인스펙터에 연결되지 않았습니다!");
+        }
+    }
+
+    // 인벤토리 x 위치 바꿔주는 함수
+    private void SetInventoryPositionX(float posX)
+    {
+        if (_inventoryRectTransform == null && _inventoryUIObject != null)
+        {
+            _inventoryRectTransform = _inventoryUIObject.GetComponent<RectTransform>();
+        }
+
+        if (_inventoryRectTransform != null)
+        {
+            Vector2 currentPos = _inventoryRectTransform.anchoredPosition;
+            currentPos.x = posX;
+            _inventoryRectTransform.anchoredPosition = currentPos;
         }
     }
 
@@ -132,6 +162,8 @@ public class UIManager : MonoBehaviour
 
         if (_inventoryUIObject != null)
         {
+            // 상점과 인벤토리 같이 열리때 인벤토리 위치 변경
+            SetInventoryPositionX(_inventoryTradePosX);
             _inventoryUIObject.SetActive(true);
         }
 

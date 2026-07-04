@@ -7,7 +7,7 @@ public class CurrencyManager : MonoBehaviour
      // 싱글턴 선언
     public static CurrencyManager Instance { get; private set; }
 
-    [SerializeField] private int _gold = 0;
+    [SerializeField] private int _gold = 500;
 
     public event Action<int> OnGoldChanged; // 골드 변경 이벤트
 

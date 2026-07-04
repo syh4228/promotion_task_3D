@@ -4761,7 +4761,7 @@ GameObject:
   - component: {fileID: 543313624}
   - component: {fileID: 543313623}
   m_Layer: 5
-  m_Name: CoinTxet
+  m_Name: GoldTxet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7367,7 +7367,7 @@ GameObject:
   - component: {fileID: 951555456}
   - component: {fileID: 951555455}
   m_Layer: 5
-  m_Name: Coin
+  m_Name: Gold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7786,7 +7786,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1024756591
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8255,7 +8255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   _hpText: {fileID: 897959120}
-  _potionText: {fileID: 543313623}
+  _goldText: {fileID: 543313623}
   _inventoryUIObject: {fileID: 1024756590}
   _shopUIObject: {fileID: 1176234685}
   _PlayerState: {fileID: 325738710}
@@ -8943,9 +8943,9 @@ RectTransform:
   - {fileID: 1748161107}
   m_Father: {fileID: 1105770071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -450, y: 0}
   m_SizeDelta: {x: 800, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1182385244 stripped
