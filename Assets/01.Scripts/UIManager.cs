@@ -12,6 +12,9 @@ public class UIManager : MonoBehaviour
     [Header("인벤토리 창 연결")]
     [SerializeField] private GameObject _inventoryUIObject;
 
+    [Header("상점 창 연결")]
+    [SerializeField] private GameObject _shopUIObject;
+
     // PlayerState가 쏘는 이벤트 구독용
     [SerializeField] private PlayerState _PlayerState;
 
@@ -91,5 +94,59 @@ public class UIManager : MonoBehaviour
             return _inventoryUIObject.GetComponent<InventoryUI>();
         }
         return null;
+    }
+
+    // 상점 Npc 상호작용시 호출 함수
+    public void ToggleTradeUI()
+    {
+        // UI가 열려있으면
+        if (IsTradeUIOpen() == true)
+        {
+            CloseTradeUI(); // UI 닫기 호출
+        }
+        else // 아니면
+        {
+            OpenTradeUI(); // UI 열기 호출
+        }
+    }
+
+    // UI 열기 함수
+    public void OpenTradeUI()
+    {
+        if (_shopUIObject != null)
+        {
+            _shopUIObject.SetActive(true);
+        }
+
+        if (_inventoryUIObject != null)
+        {
+            _inventoryUIObject.SetActive(true);
+        }
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // UI 닫기 함수
+    public void CloseTradeUI()
+    {
+        if (_shopUIObject != null)
+        {
+            _shopUIObject.SetActive(false);
+        }
+
+        if (_inventoryUIObject != null)
+        {
+            _inventoryUIObject.SetActive(false);
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    // UI 열려있는지 확인 함수
+    public bool IsTradeUIOpen()
+    {
+        return _shopUIObject != null && _shopUIObject.activeSelf;
     }
 }
