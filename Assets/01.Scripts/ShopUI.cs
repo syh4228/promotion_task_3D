@@ -24,6 +24,7 @@ public class ShopUI : MonoBehaviour
     // 슬롯을 리스트로 저장
     private List<ShopSlotUI> _slotPool = new List<ShopSlotUI>();
     private string _currentSelectedItemId; // 현재 선택된 아이템 ID
+    private bool _isPurchaseInProgress; // 연타 방지, 구매 요청중 변수저장
 
     private void OnEnable()
     {
@@ -51,6 +52,8 @@ public class ShopUI : MonoBehaviour
         }
 
         ActivateConfirmButton(false); // 버튼 비활성화
+
+        _isPurchaseInProgress = false; // 상태 초기화
 
         _viewModel.RequestInitialize(); // 초기화
     }
@@ -146,17 +149,30 @@ public class ShopUI : MonoBehaviour
     // 구매 버튼 클릭 함수
     private void OnClickConfirmPurchase()
     {
+        // 구매 요청 충이면
+        if (_isPurchaseInProgress == true)
+        {
+            return; // 반환
+        }
+
         // 선택된 아이템이 없으면
         if (string.IsNullOrEmpty(_currentSelectedItemId) == true)
         {
             return; // 반환
         }
 
-        if (_viewModel != null) // 뷰 모델이 있으면
+        if (_viewModel == null) // 뷰 모델이 없으면
         {
-            // 실제 구매 처리 요청
-            _viewModel.RequestPurchase(_currentSelectedItemId);
+            return; // 반환
         }
+
+        // 구매 요청 처리상태 true 변경
+        _isPurchaseInProgress = true;
+        // 버튼 비활성화
+        ActivateConfirmButton(false);
+
+        // // 실제 구매 처리 요청
+        _viewModel.RequestPurchase(_currentSelectedItemId);
     }
 
     // 닫기 버튼 함수
@@ -188,6 +204,8 @@ public class ShopUI : MonoBehaviour
     // 이벤트 발생 호출 함수
     private void HandlePurchaseResult(ShopPurchaseResult result, string itemName)
     {
+        _isPurchaseInProgress = false; // 구매 요청 상태 false로 변환
+
         // 결과 메시지 텍스트가 있으면
         if (_resultMessageText != null)
         {
